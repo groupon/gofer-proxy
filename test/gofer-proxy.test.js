@@ -1,5 +1,6 @@
 'use strict';
 var http = require('http');
+var URL = require('url');
 
 var assert = require('assertive');
 var express = require('express');
@@ -35,6 +36,29 @@ function ProxyClient(config) {
 }
 makeGofer(ProxyClient, 'proxy');
 
+function getResponseWithData(req) {
+  if (IS_GOFER2) {
+    return req.asPromise().then(function (results) {
+      return { response: results[1], data: results[0] };
+    });
+  }
+
+  return req.then(function (res) {
+    return res.rawBody().then(function (body) {
+      var str = body.toString();
+      return {
+        response: res,
+        data: str.length ? JSON.parse(str) : str
+      };
+    });
+  });
+}
+
+function getJSON(req) {
+  if (typeof req.json === 'function') return req.json();
+  return req.then();
+}
+
 describe('goferProxy', function () {
   var echoClient;
   var proxyClient;
@@ -56,6 +80,7 @@ describe('goferProxy', function () {
         res.statusCode = 401;
       }
       res.setHeader('Content-Type', 'application/json');
+      res.setHeader('X-Random-Header', 'from-echo');
 
       var chunks = [];
       req.on('data', function (chunk) { chunks.push(chunk); });
@@ -118,7 +143,7 @@ describe('goferProxy', function () {
         json: { some: { body: 'data' } },
         qs: { more: 'query stuff' }
       }, function (err, data) {
-        reqEcho = data;
+        reqEcho = Buffer.isBuffer(data) ? JSON.parse(data.toString()) : data;
         done(err);
       });
     });
@@ -128,9 +153,9 @@ describe('goferProxy', function () {
     });
 
     it('removes the middleware mount point from the url', function () {
-      var urlParts = reqEcho.url.split('?');
-      assert.equal('/other/base/some/path', urlParts[0]);
-      assert.equal('client_id=some-client-id&x=42&more=query%20stuff', urlParts[1]);
+      var url = URL.parse(reqEcho.url, true);
+      assert.equal('/other/base/some/path', url.pathname);
+      assert.deepEqual({ client_id: 'some-client-id', x: '42', more: 'query stuff' }, url.query);
     });
 
     it('forwards the request body', function () {
@@ -139,41 +164,50 @@ describe('goferProxy', function () {
   });
 
   it('forwards 304s', function () {
-    proxyClient.fetch('/api/v2/not-modified', {
+    return getResponseWithData(proxyClient.fetch('/api/v2/not-modified', {
       headers: { 'if-none-match': 'last-etag' }
-    }).asPromise().then(function (results) {
-      assert.equal(304, results[0].statusCode);
-      assert.equal('', results[1]);
+    })).then(function (results) {
+      assert.equal(304, results.response.statusCode);
+      assert.equal('', results.data);
+    });
+  });
+
+  it('forwards headers', function () {
+    return getResponseWithData(proxyClient.fetch('/api/v2/not-modified', {
+      headers: { 'if-none-match': 'last-etag' }
+    })).then(function (results) {
+      assert.equal(304, results.response.statusCode);
+      assert.equal('', results.data);
     });
   });
 
   it('fails cleanly with a throwing option mapper', function () {
-    proxyClient.fetch('/api/v2/some/path', {
+    return getJSON(proxyClient.fetch('/api/v2/some/path', {
       headers: { 'x-fail-mapper': '1' }
-    }).then(function (error) {
+    })).then(function (error) {
       assert.expect(error.fromErrorMiddleware);
       assert.equal('OptionMapperError', error.message);
     });
   });
 
   it('forwards 4xx', function () {
-    proxyClient.fetch('/api/v2/server-error', {
+    return getResponseWithData(proxyClient.fetch('/api/v2/server-error', {
       method: 'POST',
       json: { some: { body: 'data' } },
       qs: { more: 'query stuff' },
       headers: { 'x-my-header': 'header-value' }
-    }).asPromise().then(function (results) {
-      assert.equal(401, results[0].statusCode);
-      assert.equal('header-value', results[1].headers['x-my-header']);
+    })).then(function (results) {
+      assert.equal(401, results.response.statusCode);
+      assert.equal('header-value', results.data.headers['x-my-header']);
     });
   });
 
   it('wraps network errors', function () {
-    proxyClient.fetch('/api/v2/network-error', {
+    return getJSON(proxyClient.fetch('/api/v2/network-error', {
       method: 'POST',
       json: { some: { body: 'data' } },
       qs: { more: 'query stuff' }
-    }).then(function (error) {
+    })).then(function (error) {
       assert.expect(error.fromErrorMiddleware);
       assert.equal('ECONNRESET', error.code);
     });
