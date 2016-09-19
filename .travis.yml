@@ -19,4 +19,4 @@ deploy:
   'on':
     branch: master
     node: '4'
-    condition: $GOFER = "4"
+    condition: $GOFER = "3"
