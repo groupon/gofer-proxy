@@ -2,8 +2,13 @@ language: node_js
 node_js:
   - '0.10'
   - '4'
+env:
+  - GOFER=2
+  - GOFER=3
 before_install:
   - npm install -g npm@latest-2
+before_script:
+  - npm install "gofer@$GOFER"
 # before_deploy:
 #   - git config --global user.email "jan.krems@groupon.com"
 #   - git config --global user.name "Jan Krems"
