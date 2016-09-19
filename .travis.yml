@@ -9,13 +9,14 @@ before_install:
   - npm install -g npm@latest-2
 before_script:
   - npm install "gofer@$GOFER"
-# before_deploy:
-#   - git config --global user.email "jan.krems@groupon.com"
-#   - git config --global user.name "Jan Krems"
-# deploy:
-#   provider: script
-#   script: ./node_modules/.bin/nlm release
-#   skip_cleanup: true
-#   'on':
-#     branch: master
-#     node: '4'
+before_deploy:
+  - git config --global user.email "jan.krems@groupon.com"
+  - git config --global user.name "Jan Krems"
+deploy:
+  provider: script
+  script: ./node_modules/.bin/nlm release
+  skip_cleanup: true
+  'on':
+    branch: master
+    node: '4'
+    condition: $GOFER = "4"
