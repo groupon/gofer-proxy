@@ -1,6 +1,7 @@
 'use strict';
 var http = require('http');
 var URL = require('url');
+var zlib = require('zlib');
 
 var assert = require('assertive');
 var express = require('express');
@@ -85,12 +86,21 @@ describe('goferProxy', function () {
       var chunks = [];
       req.on('data', function (chunk) { chunks.push(chunk); });
       req.on('end', function () {
-        res.end(JSON.stringify({
+        var resBody = new Buffer(JSON.stringify({
           method: req.method,
           url: req.url,
           headers: req.headers,
           body: Buffer.concat(chunks).toString('utf8')
         }));
+        if ((req.headers['accept-encoding'] || '').indexOf('gzip') !== -1) {
+          res.setHeader('Content-Encoding', 'gzip');
+          resBody = zlib.gzip(resBody, function (error, zippedBody) {
+            if (error) throw error;
+            res.end(zippedBody);
+          });
+        } else {
+          res.end(resBody);
+        }
       });
     });
 
