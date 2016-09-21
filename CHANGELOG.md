@@ -1,3 +1,9 @@
+### 1.0.1
+
+* Handle gzip encoded bodies w/ gofer 3 - **[@jkrems](https://github.com/jkrems)** [#4](https://github.com/groupon/gofer-proxy/pull/4)
+  - [`12e207c`](https://github.com/groupon/gofer-proxy/commit/12e207c86f6b4aeeb11840b87399423955343fd9) **fix:** Handle gzip encoded bodies w/ gofer 3
+
+
 ### 1.0.0
 
 * Port code from gofer/proxy - **[@jkrems](https://github.com/jkrems)** [#1](https://github.com/groupon/gofer-proxy/pull/1)
