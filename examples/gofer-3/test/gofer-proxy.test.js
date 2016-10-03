@@ -1,0 +1,1 @@
+../../gofer-2/test/gofer-proxy.test.js

@@ -1,0 +1,14 @@
+{
+  "name": "gofer-proxy-example",
+  "version": "3.0.0",
+  "description": "Example of using gofer-proxy",
+  "repository": {},
+  "scripts": {
+    "test": "../../node_modules/.bin/mocha"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "gofer": "^3.0.0",
+    "gofer-proxy": "../.."
+  }
+}
