@@ -1,3 +1,10 @@
+### 1.0.2
+
+* Use standard setup - **[@jkrems](https://github.com/jkrems)** [#5](https://github.com/groupon/gofer-proxy/pull/5)
+  - [`51b858e`](https://github.com/groupon/gofer-proxy/commit/51b858e67f6f2779381c5e40e5adc40c0aaa1d0f) **refactor:** Use standard setup
+  - [`e0c8c14`](https://github.com/groupon/gofer-proxy/commit/e0c8c1402c6a14fdef1b55617abc3eaf8a4f8f2e) **chore:** Add node 6 to CI
+
+
 ### 1.0.1
 
 * Handle gzip encoded bodies w/ gofer 3 - **[@jkrems](https://github.com/jkrems)** [#4](https://github.com/groupon/gofer-proxy/pull/4)
