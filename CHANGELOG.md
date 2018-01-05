@@ -1,3 +1,9 @@
+### 1.0.3
+
+* Apply latest nlm generator - **[@markowsiak](https://github.com/markowsiak)** [#6](https://github.com/groupon/gofer-proxy/pull/6)
+  - [`68951f5`](https://github.com/groupon/gofer-proxy/commit/68951f5976b665f70ba4445f2ca71893d1f78b17) **chore:** Apply latest nlm generator
+
+
 ### 1.0.2
 
 * Use standard setup - **[@jkrems](https://github.com/jkrems)** [#5](https://github.com/groupon/gofer-proxy/pull/5)

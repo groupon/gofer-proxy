@@ -1,6 +1,6 @@
 {
   "name": "gofer-proxy",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Gofer Proxy",
   "license": "BSD-3-Clause",
   "main": "lib/gofer-proxy.js",
